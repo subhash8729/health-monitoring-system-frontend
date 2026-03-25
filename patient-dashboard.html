@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Dashboard - Smart Health Monitoring</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://kit.fontawesome.com/b437805b38.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+
+<body class="dash-body">
+
+  <!-- ===== TOP NAVIGATION BAR ===== -->
+  <nav class="topnav">
+    <div class="nav-left">
+      <div class="proj-title">
+        <i class="fa-solid fa-heartbeat"></i> SmartHealth Monitor
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="profile-section">
+        <div class="profile-img">
+          <i class="fa-solid fa-user"></i>
+        </div>
+        <div class="profile-info">
+          <p class="profile-name" id="patName">Patient Name</p>
+          <p class="profile-role">Patient Account</p>
+        </div>
+      </div>
+      <button id="logoutBtn" class="logout-btn">
+        <i class="fa-solid fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== MAIN LAYOUT ===== -->
+  <div class="main-wrap">
+
+    <!-- ===== SIDEBAR MENU ===== -->
+    <aside class="sidebar">
+      <div class="menu">
+        <div class="menu-item active" data-section="pat-dashboard">
+          <i class="fa-solid fa-table-columns"></i>
+          <span>Dashboard</span>
+        </div>
+        <div class="menu-item" data-section="add-patient">
+          <i class="fa-solid fa-user-plus"></i>
+          <span>Add Patient</span>
+        </div>
+        <div class="menu-item" data-section="patient-list">
+          <i class="fa-solid fa-users"></i>
+          <span>Patient List</span>
+        </div>
+        <div class="menu-item" data-section="live-monitoring">
+          <i class="fa-solid fa-heart-pulse"></i>
+          <span>Live Monitoring</span>
+        </div>
+        <div class="menu-item" data-section="health-history">
+          <i class="fa-solid fa-book-medical"></i>
+          <span>Health History</span>
+        </div>
+        <div class="menu-item" data-section="device-status">
+          <i class="fa-solid fa-microchip"></i>
+          <span>Device Status</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT AREA ===== -->
+    <main class="dash-content">
+
+      <!-- ===== DASHBOARD SECTION ===== -->
+      <section id="pat-dashboard" class="dashboard-section active">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fa-solid fa-chart-line"></i> Dashboard Overview
+          </h2>
+          <p class="section-subtitle">Your health monitoring summary</p>
+        </div>
+        <div id="dashboardSummary" class="cards-row">
+          <!-- Summary will be populated here -->
+        </div>
+      </section>
+
+      <!-- ===== ADD PATIENT SECTION ===== -->
+      <section id="add-patient" class="dashboard-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fa-solid fa-user-plus"></i> Add New Patient Profile
+          </h2>
+          <p class="section-subtitle">Create a new patient health monitoring profile</p>
+        </div>
+
+        <div class="card form-card">
+          <h3 class="card-title">
+            <i class="fa-solid fa-file-medical"></i> Patient Registration
+          </h3>
+          <form id="addPatientForm" class="patient-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="patientFullName">Full Name</label>
+                <input type="text" id="patientFullName" name="patientFullName" required
+                  placeholder="e.g., Aryan Sharma">
+              </div>
+              <div class="form-group">
+                <label for="patientAge">Age</label>
+                <input type="number" id="patientAge" name="patientAge" min="1" max="120" required
+                  placeholder="e.g., 45">
+              </div>
+              <div class="form-group">
+                <label for="patientGender">Gender</label>
+                <select id="patientGender" name="patientGender" required>
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="patientDeviceId">Device ID</label>
+                <input type="text" id="patientDeviceId" name="patientDeviceId" required placeholder="e.g., DEV-0001">
+              </div>
+            </div>
+            <button type="submit" class="btn-primary">
+              <i class="fa-solid fa-plus"></i> Add Patient Profile
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ===== PATIENT LIST SECTION ===== -->
+      <section id="patient-list" class="dashboard-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fa-solid fa-users"></i> Manage Patient Profiles
+          </h2>
+          <p class="section-subtitle">View and manage all registered patient profiles</p>
+        </div>
+
+        <div class="card table-card">
+          <h3 class="card-title">
+            <i class="fa-solid fa-list"></i> Patient Records
+          </h3>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Patient ID</th>
+                  <th>Name</th>
+                  <th>Age</th>
+                  <th>Gender</th>
+                  <th>Device ID</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="patientListTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== LIVE MONITORING SECTION ===== -->
+      <section id="live-monitoring" class="dashboard-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fa-solid fa-heart-pulse"></i> Live Health Monitoring
+          </h2>
+          <p class="section-subtitle">Real-time health metrics and vital signs</p>
+        </div>
+
+        <!-- Device Selector -->
+        <div id="deviceSelectorContainer" class="card">
+          <!-- Device selector will be rendered here -->
+        </div>
+
+        <!-- Patient Selector -->
+        <div id="patientSelectorContainer" class="card">
+          <!-- Patient selector will be rendered here -->
+        </div>
+
+        <!-- ⭐ NEW: Monitoring Control Panel -->
+        <div class="card" id="monitoringControlCard" style="display: none;">
+          <h3 class="card-title">
+            <i class="fa-solid fa-sliders"></i> Monitoring Control Panel
+          </h3>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+            <!-- Device Info -->
+            <div style="flex: 1; min-width: 200px;">
+              <div style="margin-bottom: 0.5rem;">
+                <strong style="color: var(--text-light);">Current Device:</strong>
+                <span id="currentDeviceDisplay"
+                  style="color: var(--primary); font-weight: 700; margin-left: 0.5rem;">-</span>
+              </div>
+              <div>
+                <strong style="color: var(--text-light);">Current Patient:</strong>
+                <span id="currentPatientDisplay"
+                  style="color: var(--primary); font-weight: 700; margin-left: 0.5rem;">-</span>
+              </div>
+            </div>
+
+            <!-- Status Indicator -->
+            <div style="flex: 1; min-width: 200px;">
+              <div style="text-align: center;">
+                <strong style="color: var(--text-light);">Monitoring Status:</strong>
+                <div id="monitoringStatusBadge"
+                  style="margin-top: 0.5rem; padding: 0.5rem 1rem; border-radius: 20px; display: inline-block; font-weight: 700; background: #ffebee; color: #c62828;">
+                  <i class="fa-solid fa-circle" style="margin-right: 0.5rem; font-size: 0.6rem;"></i> Idle
+                </div>
+              </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div style="flex: 1; min-width: 200px; display: flex; gap: 0.5rem; justify-content: flex-end;">
+              <button id="startMonitoringBtn" class="btn-primary" onclick="window.monitoringSystem.startMonitoring()"
+                style="flex: 1; min-width: 140px;">
+                <i class="fa-solid fa-play"></i> Start Monitoring
+              </button>
+              <button id="stopMonitoringBtn" class="btn-secondary" onclick="window.monitoringSystem.stopMonitoring()"
+                style="flex: 1; min-width: 140px; display: none;">
+                <i class="fa-solid fa-stop"></i> Stop Monitoring
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Patient Information Card -->
+        <div class="card patient-info-card" id="patientInfoCard" style="display: none;">
+          <div class="card-header-alt">
+            <h3 class="card-title">
+              <i class="fa-solid fa-id-card"></i> Patient Information
+            </h3>
+          </div>
+          <div class="patient-info-grid">
+            <div class="info-item">
+              <span class="info-label">Patient Name</span>
+              <span class="info-value" id="portalPatientName">-</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Age</span>
+              <span class="info-value" id="portalPatientAge">-</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Patient ID</span>
+              <span class="info-value" id="portalPatientId">-</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Device ID</span>
+              <span class="info-value" id="portalPatientDevice">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Monitoring Cards -->
+        <div class="cards-row" id="monitoringCardsContainer" style="display: none;">
+          <!-- Monitor cards will be populated here -->
+        </div>
+
+        <!-- ECG Graph -->
+        <div class="card ecg-card" id="ecgContainer" style="display: none;">
+          <h3 class="card-title">
+            <i class="fa-solid fa-wave-square"></i> ECG Signal Monitoring
+          </h3>
+          <div class="chart-container">
+            <canvas id="patEcgChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Blood Pressure Entry Form -->
+        <div class="card form-card" id="bpFormContainer" style="display: none;">
+          <h3 class="card-title">
+            <i class="fa-solid fa-syringe"></i> Blood Pressure Entry
+          </h3>
+          <form id="bpEntryForm" class="bp-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="systolic">Systolic Pressure</label>
+                <input type="number" id="systolic" name="systolic" min="60" max="220" required placeholder="e.g., 120">
+              </div>
+              <div class="form-group">
+                <label for="diastolic">Diastolic Pressure</label>
+                <input type="number" id="diastolic" name="diastolic" min="40" max="150" required placeholder="e.g., 80">
+              </div>
+              <button type="submit" class="btn-primary">
+                <i class="fa-solid fa-check"></i> Submit
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Blood Pressure History Table -->
+        <div class="card table-card" id="bpTableContainer" style="display: none;">
+          <h3 class="card-title">
+            <i class="fa-solid fa-table"></i> Blood Pressure History
+          </h3>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date & Time</th>
+                  <th>Systolic (mmHg)</th>
+                  <th>Diastolic (mmHg)</th>
+                </tr>
+              </thead>
+              <tbody id="bpHistoryTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Health Alerts -->
+        <div class="alerts-container" id="patientAlertsContainer" style="display: none;">
+          <!-- Alerts will be populated here -->
+        </div>
+      </section>
+
+      <!-- ===== HEALTH HISTORY SECTION ===== -->
+      <section id="health-history" class="dashboard-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fa-solid fa-book-medical"></i> Complete Health History
+          </h2>
+          <p class="section-subtitle">Historical health metrics and measurements</p>
+        </div>
+
+        <!-- Patient Selector Dropdown -->
+        <div class="card" id="historyPatientSelectorCard">
+          <h3 class="card-title">
+            <i class="fa-solid fa-users"></i> Select Patient
+          </h3>
+          <div style="display: flex; gap: 1rem; align-items: flex-end;">
+            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+              <label for="historyPatientSelect">Choose Patient to View History:</label>
+              <select id="historyPatientSelect" class="form-control"
+                onchange="window.patientDashboard.loadPatientHistory(this.value)">
+                <option value="">-- Select a Patient --</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Patient Info Card -->
+        <div class="card patient-info-card" id="historyPatientInfoCard" style="display: none;">
+          <div class="card-header-alt">
+            <h3 class="card-title">
+              <i class="fa-solid fa-id-card"></i> Patient Information
+            </h3>
+          </div>
+          <div class="patient-info-grid">
+            <div class="info-item">
+              <span class="info-label">Patient Name</span>
+              <span class="info-value" id="historyPatientName">-</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Age</span>
+              <span class="info-value" id="historyPatientAge">-</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Patient ID</span>
+              <span class="info-value" id="historyPatientId">-</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Device ID</span>
+              <span class="info-value" id="historyPatientDevice">-</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card table-card">
+          <h3 class="card-title">
+            <i class="fa-solid fa-history"></i> Health Records
+          </h3>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date & Time</th>
+                  <th>Temperature (°C)</th>
+                  <th>Heart Rate (BPM)</th>
+                  <th>SpO₂ (%)</th>
+                  <th>Blood Pressure</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="healthHistoryTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== DEVICE STATUS SECTION ===== -->
+      <section id="device-status" class="dashboard-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fa-solid fa-microchip"></i> Monitoring Device Status
+          </h2>
+          <p class="section-subtitle">Device connectivity and battery information</p>
+        </div>
+
+        <div class="card">
+          <div class="device-status-grid">
+            <div class="status-item">
+              <i class="fa-solid fa-wifi"></i>
+              <span class="status-label">Connection</span>
+              <span class="status-value" id="deviceConnection">Connected</span>
+            </div>
+            <div class="status-item">
+              <i class="fa-solid fa-battery-full"></i>
+              <span class="status-label">Battery Level</span>
+              <span class="status-value" id="deviceBattery">95%</span>
+            </div>
+            <div class="status-item">
+              <i class="fa-solid fa-clock"></i>
+              <span class="status-label">Last Sync</span>
+              <span class="status-value" id="deviceLastSync">Just now</span>
+            </div>
+            <div class="status-item">
+              <i class="fa-solid fa-signal"></i>
+              <span class="status-label">Signal Strength</span>
+              <span class="status-value" id="deviceSignal">Strong</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script src="js/script.js"></script>
+</body>
+
+</html>

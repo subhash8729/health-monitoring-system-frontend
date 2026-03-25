@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor Dashboard - Smart Health Monitoring</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://kit.fontawesome.com/b437805b38.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+
+<body class="dash-body">
+
+  <!-- ===== TOP NAVIGATION BAR ===== -->
+  <nav class="topnav">
+    <div class="nav-left">
+      <div class="proj-title">
+        <i class="fa-solid fa-heartbeat"></i> SmartHealth Monitor
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="profile-section">
+        <div class="profile-img">
+          <i class="fa-solid fa-user-doctor"></i>
+        </div>
+        <div class="profile-info">
+          <p class="profile-name" id="docName">Dr. Name</p>
+          <p class="profile-role">Cardiologist</p>
+        </div>
+      </div>
+      <button id="logoutBtn" class="logout-btn">
+        <i class="fa-solid fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== MAIN LAYOUT ===== -->
+  <div class="main-wrap">
+
+    <!-- ===== SIDEBAR MENU ===== -->
+    <aside class="sidebar">
+      <div class="menu">
+        <div class="menu-item active" data-section="dashboard">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>Dashboard</span>
+        </div>
+        <div class="menu-item" data-section="registered-devices">
+          <i class="fa-solid fa-microchip"></i>
+          <span>Registered Devices</span>
+        </div>
+        <div class="menu-item" data-section="patient-records">
+          <i class="fa-solid fa-users"></i>
+          <span>Patient Records</span>
+        </div>
+        <div class="menu-item" data-section="health-data">
+          <i class="fa-solid fa-heart-pulse"></i>
+          <span>Health Data</span>
+        </div>
+        <div class="menu-item" data-section="alerts">
+          <i class="fa-solid fa-bell"></i>
+          <span>Alerts</span>
+        </div>
+        <div class="menu-item" data-section="settings">
+          <i class="fa-solid fa-gear"></i>
+          <span>Settings</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT AREA ===== -->
+    <main class="dash-content">
+
+      <!-- ===== DASHBOARD SECTION ===== -->
+      <section id="dashboard" class="dashboard-section active">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fa-solid fa-chart-line"></i> Dashboard Overview
+          </h2>
+          <p class="section-subtitle">Quick summary of your monitoring system</p>
+        </div>
+
+        <div class="cards-row" id="dashboardSummary">
+          <!-- Summary cards will be populated here -->
+        </div>
+
+        <div class="card">
+          <h3 class="card-title"><i class="fa-solid fa-exclamation-circle"></i> Recent Alerts</h3>
+          <div id="recentAlerts" style="padding: 1rem 0;">
+            <!-- Recent alerts will be populated here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== REGISTERED DEVICES SECTION ===== -->
+      <section id="registered-devices" class="dashboard-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fa-solid fa-microchip"></i> Registered Monitoring Devices
+          </h2>
+          <p class="section-subtitle">Add and manage patient health monitoring kits</p>
+        </div>
+
+        <!-- Device Add Form -->
+        <div class="card form-card">
+          <h3 class="card-title">
+            <i class="fa-solid fa-plus-circle"></i> Add New Device
+          </h3>
+          <form id="deviceForm" class="device-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="deviceName">Device Name</label>
+                <input type="text" id="deviceName" name="deviceName" required placeholder="e.g., ICU Monitor #1">
+              </div>
+              <div class="form-group">
+                <label for="deviceId">Device ID</label>
+                <input type="text" id="deviceId" name="deviceId" required placeholder="e.g., DEV-0001">
+              </div>
+              <div class="form-group">
+                <label for="assignPatient">Caretaker Name</label>
+                <input type="text" id="assignPatient" name="assignPatient" required placeholder="e.g., John Doe">
+              </div>
+              <button type="submit" class="btn-primary">
+                <i class="fa-solid fa-plus"></i> Add Device
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Devices List Table -->
+        <div class="card table-card">
+          <h3 class="card-title">
+            <i class="fa-solid fa-list"></i> Active Devices
+          </h3>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Device Name</th>
+                  <th>Device ID</th>
+                  <th>Assigned Caretaker</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="devicesTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PATIENT RECORDS SECTION ===== -->
+      <section id="patient-records" class="dashboard-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fa-solid fa-users"></i> Patient Records
+          </h2>
+          <p class="section-subtitle">View all registered patients in the system</p>
+        </div>
+
+        <div class="card table-card">
+          <h3 class="card-title">
+            <i class="fa-solid fa-list"></i> All Patients
+          </h3>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Patient ID</th>
+                  <th>Name</th>
+                  <th>Age</th>
+                  <th>Gender</th>
+                  <th>Device ID</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="patientRecordsTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== HEALTH DATA SECTION ===== -->
+      <!-- ===== HEALTH DATA SECTION ===== -->
+      <section id="health-data" class="dashboard-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fa-solid fa-chart-line"></i> Real-Time Patient Health Data
+          </h2>
+          <p class="section-subtitle">Monitor selected patient's vital signs and health metrics</p>
+        </div>
+
+        <!-- Device Selection -->
+        <div class="card">
+          <h3 class="card-title">
+            <i class="fa-solid fa-select"></i> Select Device to Monitor
+          </h3>
+          <div class="device-selector">
+            <select id="deviceSelector" class="form-control">
+              <option value="">-- Choose a Device --</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Patients for Selected Device -->
+        <div id="devicePatientsContainer">
+          <!-- Patients will be populated here -->
+        </div>
+
+        <!-- Live Monitoring Cards -->
+        <div id="monitoringCardsContainer" class="cards-row" style="display: none;">
+          <!-- Monitor cards will be populated here -->
+        </div>
+
+        <!-- ECG Graph -->
+        <div class="card ecg-card" id="ecgContainer" style="display: none;">
+          <h3 class="card-title">
+            <i class="fa-solid fa-wave-square"></i> ECG Signal Monitoring
+          </h3>
+          <div class="chart-container">
+            <canvas id="docEcgChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Health Data Table -->
+        <div class="card table-card" id="healthDataTableContainer" style="display: none;">
+          <h3 class="card-title">
+            <i class="fa-solid fa-table"></i> Health History
+          </h3>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date & Time</th>
+                  <th>Temperature (°C)</th>
+                  <th>Heart Rate (BPM)</th>
+                  <th>SpO₂ (%)</th>
+                  <th>Blood Pressure</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="healthDataTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== ALERTS SECTION ===== -->
+      <section id="alerts" class="dashboard-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fa-solid fa-bell"></i> System Alerts
+          </h2>
+          <p class="section-subtitle">All abnormal readings and critical alerts</p>
+        </div>
+
+        <div id="alertsContainer">
+          <!-- Alerts will be populated here -->
+        </div>
+      </section>
+
+      <!-- ===== SETTINGS SECTION ===== -->
+      <section id="settings" class="dashboard-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fa-solid fa-gear"></i> Settings
+          </h2>
+          <p class="section-subtitle">Manage your account and preferences</p>
+        </div>
+
+        <div class="card form-card">
+          <h3 class="card-title">
+            <i class="fa-solid fa-user-edit"></i> Profile Settings
+          </h3>
+          <form id="settingsForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="settingsEmail">Email</label>
+                <input type="email" id="settingsEmail" name="settingsEmail" required>
+              </div>
+              <div class="form-group">
+                <label for="settingsUsername">Username</label>
+                <input type="text" id="settingsUsername" name="settingsUsername" required>
+              </div>
+              <div class="form-group">
+                <label for="settingsFullName">Full Name</label>
+                <input type="text" id="settingsFullName" name="settingsFullName" required>
+              </div>
+              <button type="submit" class="btn-primary">
+                <i class="fa-solid fa-save"></i> Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">
+            <i class="fa-solid fa-info-circle"></i> Account Information
+          </h3>
+          <div style="padding: 1rem 0;">
+            <p><strong>User Type:</strong> <span id="settingsUserType">Doctor</span></p>
+            <p><strong>Joined:</strong> <span id="settingsJoined">-</span></p>
+            <p><strong>Last Login:</strong> <span id="settingsLastLogin">-</span></p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script src="js/script.js"></script>
+</body>
+
+</html>
