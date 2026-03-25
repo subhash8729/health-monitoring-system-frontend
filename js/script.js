@@ -57,7 +57,7 @@ async function handle_registration(e) {
   let data = new FormData(form);
   let formData = Object.fromEntries(data.entries());
   if (formData?.user_type == "doctor") {
-    const response = await fetch("http://localhost:3000/auth/register-doctor",
+    const response = await fetch("https://health-monitoring-system-backend-one.vercel.app/auth/register-doctor",
       {
         method: "POST",
         headers: {
@@ -69,7 +69,7 @@ async function handle_registration(e) {
     console.log(response);
   }
   if (formData?.user_type == "caretaker") {
-    const response = await fetch("http://localhost:3000/auth/register-caretaker",
+    const response = await fetch("https://health-monitoring-system-backend-one.vercel.app/auth/register-caretaker",
       {
         method: "POST",
         headers: {
@@ -91,7 +91,7 @@ async function handle_login(e) {
   let data = new FormData(form);
   let formData = Object.fromEntries(data.entries());
 
-  const response = await fetch("http://localhost:3000/auth/login",
+  const response = await fetch("https://health-monitoring-system-backend-one.vercel.app/auth/login",
     {
       method: "POST",
       headers: {
@@ -725,7 +725,7 @@ window.monitoringSystem = {
   startMonitoring: async function () {
     const patientId = window.currentPatientId;
     const deviceId = window.currentDeviceId;
-     await fetch("http://localhost:3000/caretaker/start-monitoring",
+     await fetch("https://health-monitoring-system-backend-one.vercel.app/caretaker/start-monitoring",
       {
         method: "POST",
         headers: {
