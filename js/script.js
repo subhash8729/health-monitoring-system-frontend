@@ -63,13 +63,13 @@ async function handle_login(e) {
     const data = await response.json();
     if (data.user_type == "caretaker") {
       localStorage.setItem("caretaker_id", data?.caretaker_id);
-      localStorage.setItem("currentUser", JSON.stringify({ fullName: data.fullName }))
+      localStorage.setItem("currentUser", JSON.stringify({ fullName: data.fullName, username:data.username, email:data.email }))
       window.location.href = "/patient-dashboard.html"
     }
 
     if (data.user_type == "doctor") {
-      console.log("doctor-data",data)
-      localStorage.setItem("currentUser", JSON.stringify({ fullName: data.fullName, doctor_id: data.doctor_id}))
+      console.log("doctor-data", data)
+      localStorage.setItem("currentUser", JSON.stringify({ fullName: data.fullName, username:data.username, email:data.email, doctor_id: data.doctor_id }))
       localStorage.setItem("doctor_id", data?.doctor_id)
       window.location.href = "/doctor-dashboard.html"
     }
@@ -148,6 +148,7 @@ if (window.location.pathname.includes('doctor-dashboard.html')) {
       const data = await response.json();
 
       const select = document.createElement("select");
+
       data.forEach(item => {
         const option = document.createElement("option");
         option.textContent = item.fullName;
@@ -156,6 +157,7 @@ if (window.location.pathname.includes('doctor-dashboard.html')) {
         select.style.width = "100%"
         select.id = "caretaker_id"
       });
+      document.querySelector("#caretaker_name").innerHTML = ''
       document.querySelector("#caretaker_name").appendChild(select)
 
       devicesDB = data;
