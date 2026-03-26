@@ -57,7 +57,7 @@ async function handle_registration(e) {
   let data = new FormData(form);
   let formData = Object.fromEntries(data.entries());
   if (formData?.user_type == "doctor") {
-    const response = await fetch("https://health-monitoring-system-backend-one.vercel.app/auth/register-doctor",
+    const response = await fetch("http://localhost:3000/auth/register-doctor",
       {
         method: "POST",
         headers: {
@@ -66,10 +66,14 @@ async function handle_registration(e) {
         body: JSON.stringify(formData)
       }
     );
-    console.log(response);
+
+    if (response.status == 200) {
+      alert("✅registration success")
+      window.location.href = "/"
+    }
   }
   if (formData?.user_type == "caretaker") {
-    const response = await fetch("https://health-monitoring-system-backend-one.vercel.app/auth/register-caretaker",
+    const response = await fetch("http://localhost:3000/auth/register-caretaker",
       {
         method: "POST",
         headers: {
@@ -78,7 +82,11 @@ async function handle_registration(e) {
         body: JSON.stringify(formData)
       }
     );
-    console.log(response);
+    const data = await response.json();
+    if (response.status == 200) {
+      alert("✅registration success")
+      window.location.href = "/"
+    }
 
   }
 
@@ -91,7 +99,7 @@ async function handle_login(e) {
   let data = new FormData(form);
   let formData = Object.fromEntries(data.entries());
 
-  const response = await fetch("https://health-monitoring-system-backend-one.vercel.app/auth/login",
+  const response = await fetch("http://localhost:3000/auth/login",
     {
       method: "POST",
       headers: {
@@ -101,13 +109,75 @@ async function handle_login(e) {
     }
   );
   if (response.status == 200) {
-    window.location.href = "/patient-dashboard.html"
+
+    const data = await response.json();
+    if (data.user_type == "caretaker") {
+      localStorage.setItem("caretaker_id", data?.caretaker_id)
+      window.location.href = "/patient-dashboard.html"
+    }
+
+    if (data.user_type == "doctor") {
+      localStorage.setItem("doctor_id", data?.doctor_id)
+      window.location.href = "/doctor-dashboard.html"
+    }
   }
+
   else {
     alert("Incorrect credentials")
   }
 
 }
+
+async function handle_add_patient(e) {
+  e.preventDefault()
+  console.log("patient add menu");
+  let form = e.target;
+  let data = new FormData(form);
+  let formData = Object.fromEntries(data.entries());
+  formData.caretaker_id = localStorage.getItem("caretaker_id")
+  const response = await fetch("http://localhost:3000/caretaker/add-patient",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(formData)
+    }
+  );
+  if (response.status == 200) {
+    alert("patient add success")
+  }
+  else {
+    const data = await response.json()
+    const error_message = data.error_message || "error adding patient"
+    alert(error_message)
+  }
+  console.log(formData);
+}
+
+// async function load_patients(e) {
+//   console.log("patient loading");
+
+//   const response = await fetch("http://localhost:3000/caretaker/get-patients",
+//     {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json"
+//       },
+//       body: JSON.stringify({ "device_id": "DEV-901" })
+//     }
+//   );
+//   if (response.status == 200) {
+//     alert("patient load success")
+//   }
+//   else {
+//     const data = await response.json()
+//     const error_message = data.error_message || "error loading patient"
+//     alert(error_message)
+//   }
+
+// }
+
 
 // ===== LOGIN LOGIC =====
 // if (document.getElementById('loginForm')) {
@@ -166,9 +236,51 @@ if (window.location.pathname.includes('doctor-dashboard.html')) {
     devicesDB = stored ? JSON.parse(stored) : [];
   }
 
-  function loadPatients() {
-    const stored = localStorage.getItem('patientsDB');
-    patientsDB = stored ? JSON.parse(stored) : [];
+  async function loadPatients() {
+    console.log("patient loading");
+
+    const response = await fetch("http://localhost:3000/doctor/get-assigned-caretakers",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ "doctor_id": "DR-1" })
+      }
+    );
+    if (response.status == 200) {
+      const data = await response.json();
+      devicesDB = data;
+    }
+    else {
+      const data = await response.json()
+      const error_message = data.error_message || "error loading patient"
+
+    }
+  }
+  function load_caretakers() {
+    loadPatients();
+    console.log("newer data is",devicesDB)
+    const tbody = document.getElementById('devicesTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+    console.log("deviceDB is", devicesDB)
+    devicesDB.forEach(device => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${device.device_name}</td>
+        <td><strong>${device.device_id}</strong></td>
+        <td>${device.caretaker_name}</td>
+        <td><span class="status-badge active">Active</span></td>
+        <td>
+          <button class="btn-secondary" onclick="selectDeviceForMonitoring('${device.id}')">
+            <i class="fa-solid fa-eye"></i> View Patients
+          </button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
   }
 
   function saveDevices() {
@@ -255,6 +367,7 @@ if (window.location.pathname.includes('doctor-dashboard.html')) {
     if (!tbody) return;
 
     tbody.innerHTML = '';
+    console.log("deviceDB is", devicesDB)
     devicesDB.forEach(device => {
       const row = document.createElement('tr');
       row.innerHTML = `
@@ -337,8 +450,8 @@ if (window.location.pathname.includes('doctor-dashboard.html')) {
       const isAlert = patient.temperature > 38 || patient.spo2 < 90 || patient.heartRate > 120;
       const row = document.createElement('tr');
       row.innerHTML = `
-        <td><strong>${patient.id}</strong></td>
-        <td>${patient.name}</td>
+        <td><strong>${patient.patient_id}</strong></td>
+        <td>${patient.patient_name}</td>
         <td>${patient.age}</td>
         <td>${patient.gender}</td>
         <td>${patient.deviceId}</td>
@@ -725,13 +838,13 @@ window.monitoringSystem = {
   startMonitoring: async function () {
     const patientId = window.currentPatientId;
     const deviceId = window.currentDeviceId;
-     await fetch("https://health-monitoring-system-backend-one.vercel.app/caretaker/start-monitoring",
+    await fetch("http://localhost:3000/caretaker/start-monitoring",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({device_id:"DEV-9001",patient_id:"P-001", patient_name:"demoPatient"})
+        body: JSON.stringify({ device_id: "DEV-9001", patient_id: "P-001", patient_name: "demoPatient" })
       }
     );
     alert("⌛ you have 1 minute to connect with device");
@@ -1050,44 +1163,6 @@ if (window.location.pathname.includes('patient-dashboard.html')) {
     }
   }
 
-  // Add Patient
-  const addPatientForm = document.getElementById('addPatientForm');
-  if (addPatientForm) {
-    addPatientForm.addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      const name = document.getElementById('patientFullName').value.trim();
-      const age = document.getElementById('patientAge').value;
-      const gender = document.getElementById('patientGender').value;
-      const deviceId = document.getElementById('patientDeviceId').value.trim();
-
-      if (!name || !age || !gender || !deviceId) {
-        alert('❌ Please fill in all fields');
-        return;
-      }
-
-      const newPatient = {
-        id: 'PT-' + nextPatientId++,
-        name,
-        age: parseInt(age),
-        gender,
-        deviceId,
-        temperature: 36.5,
-        heartRate: 72,
-        spo2: 97,
-        bpHistory: [],
-        healthHistory: []
-      };
-
-      loadPatients();
-      patientsDB.push(newPatient);
-      savePatients();
-      renderPatientsList();
-      renderDashboardSummary();
-      this.reset();
-      alert('✅ Patient added successfully!');
-    });
-  }
 
   // Render Patients List
   function renderPatientsList() {
@@ -1627,8 +1702,8 @@ if (window.location.pathname.includes('patient-dashboard.html')) {
   // =======================================
   // INITIALIZATION
   // =======================================
-  loadPatients();
-  renderPatientsList();
+  // loadPatients();
+  // renderPatientsList();
   renderDashboardSummary();
 
   // Initialize monitoring system

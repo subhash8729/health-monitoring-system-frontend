@@ -97,7 +97,7 @@
           <h3 class="card-title">
             <i class="fa-solid fa-file-medical"></i> Patient Registration
           </h3>
-          <form id="addPatientForm" class="patient-form">
+          <form onsubmit="handle_add_patient(event)" id="addPatientForm" class="patient-form">
             <div class="form-row">
               <div class="form-group">
                 <label for="patientFullName">Full Name</label>
@@ -118,10 +118,7 @@
                   <option value="Other">Other</option>
                 </select>
               </div>
-              <div class="form-group">
-                <label for="patientDeviceId">Device ID</label>
-                <input type="text" id="patientDeviceId" name="patientDeviceId" required placeholder="e.g., DEV-0001">
-              </div>
+              
             </div>
             <button type="submit" class="btn-primary">
               <i class="fa-solid fa-plus"></i> Add Patient Profile
