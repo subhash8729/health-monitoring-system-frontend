@@ -63,10 +63,13 @@ async function handle_login(e) {
     const data = await response.json();
     if (data.user_type == "caretaker") {
       localStorage.setItem("caretaker_id", data?.caretaker_id);
+      localStorage.setItem("currentUser", JSON.stringify({ fullName: data.fullName }))
       window.location.href = "/patient-dashboard.html"
     }
 
     if (data.user_type == "doctor") {
+      console.log("doctor-data",data)
+      localStorage.setItem("currentUser", JSON.stringify({ fullName: data.fullName, doctor_id: data.doctor_id}))
       localStorage.setItem("doctor_id", data?.doctor_id)
       window.location.href = "/doctor-dashboard.html"
     }
@@ -1223,9 +1226,9 @@ if (window.location.pathname.includes('patient-dashboard.html')) {
 
       const patient = patientsDB.find(p => p.id === patientId);
 
-      localStorage.setItem("selected_patient_id",patientId)
-      localStorage.setItem("selected_patient_name",patientName)
-    
+      localStorage.setItem("selected_patient_id", patientId)
+      localStorage.setItem("selected_patient_name", patientName)
+
       window.currentPatientId = patientId;
       window.currentDeviceId = patientName || "fetch error";
 
