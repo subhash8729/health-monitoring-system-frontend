@@ -7,7 +7,7 @@ async function handle_registration(e) {
   let data = new FormData(form);
   let formData = Object.fromEntries(data.entries());
   if (formData?.user_type == "doctor") {
-    const response = await fetch("http://localhost:3000/auth/register-doctor",
+    const response = await fetch("https://health-monitoring-system-backend-one.vercel.app/auth/register-doctor",
       {
         method: "POST",
         headers: {
@@ -23,7 +23,7 @@ async function handle_registration(e) {
     }
   }
   if (formData?.user_type == "caretaker") {
-    const response = await fetch("http://localhost:3000/auth/register-caretaker",
+    const response = await fetch("https://health-monitoring-system-backend-one.vercel.app/auth/register-caretaker",
       {
         method: "POST",
         headers: {
@@ -49,7 +49,7 @@ async function handle_login(e) {
   let data = new FormData(form);
   let formData = Object.fromEntries(data.entries());
 
-  const response = await fetch("http://localhost:3000/auth/login",
+  const response = await fetch("https://health-monitoring-system-backend-one.vercel.app/auth/login",
     {
       method: "POST",
       headers: {
@@ -84,7 +84,7 @@ async function handle_add_patient(e) {
   let data = new FormData(form);
   let formData = Object.fromEntries(data.entries());
 
-  const response = await fetch("http://localhost:3000/caretaker/add-patient",
+  const response = await fetch("https://health-monitoring-system-backend-one.vercel.app/caretaker/add-patient",
     {
       method: "POST",
       headers: {
@@ -132,7 +132,7 @@ if (window.location.pathname.includes('doctor-dashboard.html')) {
   async function get_non_assigned_caretakers() {
     console.log("getting non assinged caretakers");
 
-    const response = await fetch("http://localhost:3000/doctor/get-non-assigned-caretakers",
+    const response = await fetch("https://health-monitoring-system-backend-one.vercel.app/doctor/get-non-assigned-caretakers",
       {
         method: "POST",
         headers: {
@@ -167,7 +167,7 @@ if (window.location.pathname.includes('doctor-dashboard.html')) {
   async function load_assigned_caretakers() {
     console.log("patient loading");
 
-    const response = await fetch("http://localhost:3000/doctor/get-assigned-caretakers",
+    const response = await fetch("https://health-monitoring-system-backend-one.vercel.app/doctor/get-assigned-caretakers",
       {
         method: "POST",
         headers: {
@@ -219,7 +219,7 @@ if (window.location.pathname.includes('doctor-dashboard.html')) {
     let formData = Object.fromEntries(data.entries());
     formData.caretaker_id = document.getElementById("caretaker_id").value
     console.log(formData)
-    const response = await fetch("http://localhost:3000/doctor/assign-device",
+    const response = await fetch("https://health-monitoring-system-backend-one.vercel.app/doctor/assign-device",
       {
         method: "POST",
         headers: {
@@ -755,7 +755,7 @@ window.monitoringSystem = {
   startMonitoring: async function () {
     const patientId = window.currentPatientId;
     const deviceId = window.currentDeviceId;
-    await fetch("http://localhost:3000/caretaker/start-monitoring",
+    await fetch("https://health-monitoring-system-backend-one.vercel.app/caretaker/start-monitoring",
       {
         method: "POST",
         headers: {
@@ -1010,7 +1010,7 @@ if (window.location.pathname.includes('patient-dashboard.html')) {
   let nextPatientId = 101;
 
   async function loadPatients() {
-    const res = await fetch("http://localhost:3000/caretaker/get-patients", {
+    const res = await fetch("https://health-monitoring-system-backend-one.vercel.app/caretaker/get-patients", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
