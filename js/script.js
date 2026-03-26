@@ -1,54 +1,4 @@
 
-
-// ===== REGISTRATION LOGIC =====
-// if (document.getElementById('registerForm')) {
-//   document.getElementById('registerForm').addEventListener('submit', function (e) {
-//     e.preventDefault();
-
-//     const email = document.getElementById('reg_email').value.trim();
-//     const username = document.getElementById('reg_username').value.trim();
-//     const password = document.getElementById('reg_password').value.trim();
-//     const userType = document.querySelector('input[name="reg_userType"]:checked').value;
-
-//     if (!email && !username) {
-//       alert('❌ Please provide either an email or username.');
-//       return;
-//     }
-
-//     if (!password || password.length < 6) {
-//       alert('❌ Password must be at least 6 characters long.');
-//       return;
-//     }
-
-//     let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-
-//     if (email && Object.values(registeredUsers).find(u => u.email === email)) {
-//       alert('❌ Email already registered.');
-//       return;
-//     }
-
-//     if (username && registeredUsers[username]) {
-//       alert('❌ Username already taken.');
-//       return;
-//     }
-
-//     const newUser = {
-//       username: username || null,
-//       email: email || null,
-//       password: password,
-//       userType: userType,
-//       fullName: username || email.split('@')[0]
-//     };
-
-//     const userKey = username || email;
-//     registeredUsers[userKey] = newUser;
-//     localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-
-//     alert('✅ Registration successful! Please login.');
-//     window.location.href = 'index.html';
-//   });
-// }
-
 async function handle_registration(e) {
   e.preventDefault();
   console.log("registration began")
@@ -112,7 +62,7 @@ async function handle_login(e) {
 
     const data = await response.json();
     if (data.user_type == "caretaker") {
-      localStorage.setItem("caretaker_id", data?.caretaker_id)
+      localStorage.setItem("caretaker_id", data?.caretaker_id);
       window.location.href = "/patient-dashboard.html"
     }
 
@@ -130,18 +80,22 @@ async function handle_login(e) {
 
 async function handle_add_patient(e) {
   e.preventDefault()
-  console.log("patient add menu");
   let form = e.target;
   let data = new FormData(form);
   let formData = Object.fromEntries(data.entries());
-  formData.caretaker_id = localStorage.getItem("caretaker_id")
+
   const response = await fetch("http://localhost:3000/caretaker/add-patient",
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(formData)
+      body: JSON.stringify({
+        caretaker_id: localStorage.getItem("caretaker_id"),
+        patient_name: formData.patientFullName,
+        patient_age: formData.patientAge,
+        patient_gender: formData.patientGender
+      })
     }
   );
   if (response.status == 200) {
@@ -149,73 +103,12 @@ async function handle_add_patient(e) {
   }
   else {
     const data = await response.json()
+    console.log(data)
     const error_message = data.error_message || "error adding patient"
     alert(error_message)
   }
   console.log(formData);
 }
-
-// async function load_patients(e) {
-//   console.log("patient loading");
-
-//   const response = await fetch("http://localhost:3000/caretaker/get-patients",
-//     {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json"
-//       },
-//       body: JSON.stringify({ "device_id": "DEV-901" })
-//     }
-//   );
-//   if (response.status == 200) {
-//     alert("patient load success")
-//   }
-//   else {
-//     const data = await response.json()
-//     const error_message = data.error_message || "error loading patient"
-//     alert(error_message)
-//   }
-
-// }
-
-
-// ===== LOGIN LOGIC =====
-// if (document.getElementById('loginForm')) {
-//   document.getElementById('loginForm').addEventListener('submit', function (e) {
-//     e.preventDefault();
-
-//     const loginField = document.getElementById('login_field').value.trim();
-//     const password = document.getElementById('login_password').value.trim();
-
-//     if (!loginField || !password) {
-//       alert('❌ Please enter both email/username and password.');
-//       return;
-//     }
-
-//     let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-
-//     let user = registeredUsers[loginField];
-//     if (!user) {
-//       user = Object.values(registeredUsers).find(u => u.email === loginField);
-//     }
-
-//     if (!user || user.password !== password) {
-//       alert('❌ Invalid credentials. Please try again.');
-//       return;
-//     }
-
-//     localStorage.setItem('currentUser', JSON.stringify(user));
-//     localStorage.setItem('userType', user.userType);
-//     localStorage.setItem('userEmail', user.email || '');
-//     localStorage.setItem('userName', user.username || user.email.split('@')[0]);
-
-//     if (user.userType === 'doctor') {
-//       window.location.href = 'doctor-dashboard.html';
-//     } else {
-//       window.location.href = 'patient-dashboard.html';
-//     }
-//   });
-// }
 
 // ===== DOCTOR DASHBOARD =====
 if (window.location.pathname.includes('doctor-dashboard.html')) {
@@ -236,20 +129,32 @@ if (window.location.pathname.includes('doctor-dashboard.html')) {
     devicesDB = stored ? JSON.parse(stored) : [];
   }
 
-  async function loadPatients() {
-    console.log("patient loading");
+  async function get_non_assigned_caretakers() {
+    console.log("getting non assinged caretakers");
 
-    const response = await fetch("http://localhost:3000/doctor/get-assigned-caretakers",
+    const response = await fetch("http://localhost:3000/doctor/get-non-assigned-caretakers",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ "doctor_id": "DR-1" })
+        body: JSON.stringify({ "doctor_id": localStorage.getItem("doctor_id") })
       }
     );
     if (response.status == 200) {
       const data = await response.json();
+
+      const select = document.createElement("select");
+      data.forEach(item => {
+        const option = document.createElement("option");
+        option.textContent = item.fullName;
+        option.value = item.caretaker_id;
+        select.appendChild(option);
+        select.style.width = "100%"
+        select.id = "caretaker_id"
+      });
+      document.querySelector("#caretaker_name").appendChild(select)
+
       devicesDB = data;
     }
     else {
@@ -258,20 +163,34 @@ if (window.location.pathname.includes('doctor-dashboard.html')) {
 
     }
   }
-  function load_caretakers() {
-    loadPatients();
-    console.log("newer data is",devicesDB)
-    const tbody = document.getElementById('devicesTableBody');
-    if (!tbody) return;
 
-    tbody.innerHTML = '';
-    console.log("deviceDB is", devicesDB)
-    devicesDB.forEach(device => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
+  async function load_assigned_caretakers() {
+    console.log("patient loading");
+
+    const response = await fetch("http://localhost:3000/doctor/get-assigned-caretakers",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ "doctor_id": localStorage.getItem('doctor_id') })
+      }
+    );
+    if (response.status == 200) {
+      const data = await response.json();
+      console.log("assigned caretakers", data)
+      devicesDB = data;
+      const tbody = document.getElementById('devicesTableBody');
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+      console.log("deviceDB is", devicesDB)
+      devicesDB.forEach(device => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
         <td>${device.device_name}</td>
         <td><strong>${device.device_id}</strong></td>
-        <td>${device.caretaker_name}</td>
+        <td>${device.fullName}</td>
         <td><span class="status-badge active">Active</span></td>
         <td>
           <button class="btn-secondary" onclick="selectDeviceForMonitoring('${device.id}')">
@@ -279,9 +198,49 @@ if (window.location.pathname.includes('doctor-dashboard.html')) {
           </button>
         </td>
       `;
-      tbody.appendChild(row);
-    });
+        tbody.appendChild(row);
+      });
+    }
+    else {
+      const data = await response.json()
+      console.log("assigned caretakers when error", data)
+
+    }
   }
+  function load_caretakers() {
+    load_assigned_caretakers();
+    get_non_assigned_caretakers();
+  }
+
+  document.querySelector("#deviceForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    let form = e.target;
+    let data = new FormData(form);
+    let formData = Object.fromEntries(data.entries());
+    formData.caretaker_id = document.getElementById("caretaker_id").value
+    console.log(formData)
+    const response = await fetch("http://localhost:3000/doctor/assign-device",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ device_id: formData.deviceId, device_name: formData.deviceName, caretaker_id: formData.caretaker_id })
+      }
+    );
+    if (response.status == 200) {
+      const data = await response.json();
+      console.log("success result =", data)
+      devicesDB = data;
+    }
+    else {
+      const data = await response.json();
+      console.log("the fuck is", data)
+      const error_message = data.error_message || "error loading patient"
+
+    }
+
+  })
 
   function saveDevices() {
     localStorage.setItem('devicesDB', JSON.stringify(devicesDB));
@@ -299,7 +258,6 @@ if (window.location.pathname.includes('doctor-dashboard.html')) {
   // Render Dashboard Summary
   function renderDoctorDashboard() {
     loadDevices();
-    loadPatients();
 
     const alertCount = getAlertCount();
     const summary = document.getElementById('dashboardSummary');
@@ -394,6 +352,7 @@ if (window.location.pathname.includes('doctor-dashboard.html')) {
     selector.innerHTML = '<option value="">-- Select a Device --</option>';
     devicesDB.forEach(device => {
       const option = document.createElement('option');
+
       option.value = device.id;
       option.textContent = `${device.name} (${device.id}) - ${device.patient}`;
       selector.appendChild(option);
@@ -601,47 +560,6 @@ if (window.location.pathname.includes('doctor-dashboard.html')) {
     });
   }
 
-  // Device Form Submission
-  const deviceForm = document.getElementById('deviceForm');
-  if (deviceForm) {
-    deviceForm.addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      const deviceName = document.getElementById('deviceName').value.trim();
-      const deviceId = document.getElementById('deviceId').value.trim();
-      const patientName = document.getElementById('assignPatient').value.trim();
-
-      if (!deviceName || !deviceId || !patientName) {
-        alert('❌ Please fill in all fields');
-        return;
-      }
-
-      loadDevices();
-      if (devicesDB.find(d => d.id === deviceId)) {
-        alert('❌ Device ID already exists');
-        return;
-      }
-
-      const newDevice = {
-        id: deviceId,
-        name: deviceName,
-        patient: patientName,
-        temperature: 36.5,
-        heartRate: 72,
-        spo2: 97,
-        bp: '120/80',
-        history: []
-      };
-
-      devicesDB.push(newDevice);
-      saveDevices();
-      renderDevicesList();
-      populateDeviceSelector();
-      this.reset();
-      alert('✅ Device added successfully!');
-    });
-  }
-
   // Device Selector Change
   const deviceSelector = document.getElementById('deviceSelector');
   if (deviceSelector) {
@@ -782,7 +700,6 @@ if (window.location.pathname.includes('doctor-dashboard.html')) {
 
   // Initialize
   loadDevices();
-  loadPatients();
   renderDevicesList();
   populateDeviceSelector();
   renderDoctorDashboard();
@@ -844,7 +761,7 @@ window.monitoringSystem = {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ device_id: "DEV-9001", patient_id: "P-001", patient_name: "demoPatient" })
+        body: JSON.stringify({ device_id: "DEV-9001", patient_id: localStorage.getItem('selected_patient_id'), patient_name: localStorage.getItem("selected_patient_name") })
       }
     );
     alert("⌛ you have 1 minute to connect with device");
@@ -1092,9 +1009,16 @@ if (window.location.pathname.includes('patient-dashboard.html')) {
   let patEcgAnimationId = null;
   let nextPatientId = 101;
 
-  function loadPatients() {
-    const stored = localStorage.getItem('patientsDB');
-    patientsDB = stored ? JSON.parse(stored) : [];
+  async function loadPatients() {
+    const res = await fetch("http://localhost:3000/caretaker/get-patients", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ caretaker_id: localStorage.getItem("caretaker_id") })
+    });
+
+    patientsDB = await res.json();
   }
 
   function savePatients() {
@@ -1174,13 +1098,13 @@ if (window.location.pathname.includes('patient-dashboard.html')) {
     patientsDB.forEach(patient => {
       const row = document.createElement('tr');
       row.innerHTML = `
-        <td>${patient.id}</td>
-        <td><strong>${patient.name}</strong></td>
-        <td>${patient.age}</td>
-        <td>${patient.gender}</td>
-        <td>${patient.deviceId}</td>
+        <td>${patient.patient_id}</td>
+        <td><strong>${patient.patient_name}</strong></td>
+        <td>${patient.patient_age}</td>
+        <td>${patient.patient_gender}</td>
+        <td>${patient.device_id}</td>
         <td>
-          <button class="btn-secondary" onclick="window.patientDashboard.openPatientPortal('${patient.id}')">
+          <button class="btn-secondary" onclick="window.patientDashboard.openPatientPortal('${patient.patient_id}','${patient.patient_name}','${patient.patient_age}','${patient.patient_gender}')">
             <i class="fa-solid fa-door-open"></i> Open
           </button>
         </td>
@@ -1295,16 +1219,15 @@ if (window.location.pathname.includes('patient-dashboard.html')) {
       updatePatientPortal(patient);
     },
 
-    openPatientPortal: function (patientId) {
-      loadPatients();
-      const patient = patientsDB.find(p => p.id === patientId);
-      if (!patient) {
-        alert('❌ Patient not found');
-        return;
-      }
+    openPatientPortal: async function (patientId, patientName, patientAge, patientGender) {
 
+      const patient = patientsDB.find(p => p.id === patientId);
+
+      localStorage.setItem("selected_patient_id",patientId)
+      localStorage.setItem("selected_patient_name",patientName)
+    
       window.currentPatientId = patientId;
-      window.currentDeviceId = patient.deviceId;
+      window.currentDeviceId = patientName || "fetch error";
 
       showPatientSection('live-monitoring');
 
