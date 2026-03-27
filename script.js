@@ -212,10 +212,14 @@ if (window.location.pathname.includes('doctor-dashboard.html')) {
 
     }
   }
+  
   function load_caretakers() {
     load_assigned_caretakers();
     get_non_assigned_caretakers();
   }
+  document.querySelector("#registered-devices-list").addEventListener("click",(e)=>{
+    load_caretakers();
+  })
 
   document.querySelector("#deviceForm").addEventListener("submit", async (e) => {
     e.preventDefault();
