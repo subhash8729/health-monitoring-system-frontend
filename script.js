@@ -63,13 +63,13 @@ async function handle_login(e) {
     const data = await response.json();
     if (data.user_type == "caretaker") {
       localStorage.setItem("caretaker_id", data?.caretaker_id);
-      localStorage.setItem("currentUser", JSON.stringify({ fullName: data.fullName, username:data.username, email:data.email }))
+      localStorage.setItem("currentUser", JSON.stringify({ fullName: data.fullName, username: data.username, email: data.email }))
       window.location.href = "/patient-dashboard.html"
     }
 
     if (data.user_type == "doctor") {
       console.log("doctor-data", data)
-      localStorage.setItem("currentUser", JSON.stringify({ fullName: data.fullName, username:data.username, email:data.email, doctor_id: data.doctor_id }))
+      localStorage.setItem("currentUser", JSON.stringify({ fullName: data.fullName, username: data.username, email: data.email, doctor_id: data.doctor_id }))
       localStorage.setItem("doctor_id", data?.doctor_id)
       window.location.href = "/doctor-dashboard.html"
     }
@@ -212,12 +212,12 @@ if (window.location.pathname.includes('doctor-dashboard.html')) {
 
     }
   }
-  
+
   function load_caretakers() {
     load_assigned_caretakers();
     get_non_assigned_caretakers();
   }
-  document.querySelector("#registered-devices-list").addEventListener("click",(e)=>{
+  document.querySelector("#registered-devices-list").addEventListener("click", (e) => {
     load_caretakers();
   })
 
@@ -1255,8 +1255,14 @@ if (window.location.pathname.includes('patient-dashboard.html')) {
       // Show monitoring control
       document.getElementById('monitoringControlCard').style.display = 'block';
       window.monitoringSystem.updateUI();
+      const patient1 = {
+        name:patientName,
+        age:patientAge,
+        id:patientId,
+        deviceId:patientGender
 
-      updatePatientPortal(patient);
+      }
+      updatePatientPortal(patient1);
 
       setTimeout(() => {
         const section = document.getElementById('live-monitoring');
@@ -1285,6 +1291,72 @@ if (window.location.pathname.includes('patient-dashboard.html')) {
 
   // Update Patient Portal
   function updatePatientPortal(patient) {
+
+
+const canvas = document.getElementById("patEcgChart");
+const ctx = canvas.getContext("2d");
+
+canvas.width = canvas.offsetWidth;
+canvas.height = 250;
+
+let x = 0;
+let speed = 1; // slower
+
+function ecg(t) {
+  let phase = t % 300;
+
+  if (phase < 20) return Math.sin(phase / 20 * Math.PI) * 10; // P
+  if (phase < 40) return 0;
+  if (phase < 50) return -20; // Q
+  if (phase < 60) return 80;  // R
+  if (phase < 80) return -30; // S
+  if (phase < 140) return Math.sin((phase - 80) / 60 * Math.PI) * 20; // T
+
+  return (Math.random() - 0.5) * 4; // noise
+}
+
+function drawGrid() {
+  ctx.strokeStyle = "#0a0";
+  ctx.lineWidth = 0.3;
+
+  for (let i = 0; i < canvas.width; i += 20) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i, canvas.height);
+    ctx.stroke();
+  }
+
+  for (let i = 0; i < canvas.height; i += 20) {
+    ctx.beginPath();
+    ctx.moveTo(0, i);
+    ctx.lineTo(canvas.width, i);
+    ctx.stroke();
+  }
+}
+
+function draw() {
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  drawGrid();
+
+  ctx.strokeStyle = "lime";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+
+  for (let i = 0; i < canvas.width; i++) {
+    let y = canvas.height / 2 + ecg(x + i);
+    ctx.lineTo(i, y);
+  }
+
+  ctx.stroke();
+
+  x += speed;
+  requestAnimationFrame(draw);
+}
+
+draw();
+
     const infoCard = document.getElementById('patientInfoCard');
     if (infoCard) infoCard.style.display = 'block';
 
@@ -1294,6 +1366,7 @@ if (window.location.pathname.includes('patient-dashboard.html')) {
       'portalPatientId': patient.id,
       'portalPatientDevice': patient.deviceId
     };
+
 
     Object.entries(elements).forEach(([id, value]) => {
       const el = document.getElementById(id);

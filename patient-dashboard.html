@@ -118,7 +118,7 @@
                   <option value="Other">Other</option>
                 </select>
               </div>
-              
+
             </div>
             <button type="submit" class="btn-primary">
               <i class="fa-solid fa-plus"></i> Add Patient Profile
@@ -245,26 +245,32 @@
               <span class="info-value" id="portalPatientId">-</span>
             </div>
             <div class="info-item">
-              <span class="info-label">Device ID</span>
+              <span class="info-label">Gender</span>
               <span class="info-value" id="portalPatientDevice">-</span>
             </div>
           </div>
         </div>
 
-        <!-- Live Monitoring Cards -->
-        <div class="cards-row" id="monitoringCardsContainer" style="display: none;">
-          <!-- Monitor cards will be populated here -->
-        </div>
-
-        <!-- ECG Graph -->
-        <div class="card ecg-card" id="ecgContainer" style="display: none;">
-          <h3 class="card-title">
-            <i class="fa-solid fa-wave-square"></i> ECG Signal Monitoring
-          </h3>
-          <div class="chart-container">
-            <canvas id="patEcgChart"></canvas>
+        <div class="card-header-alt">
+            <h3 class="card-title">
+              <i class="fa-solid fa-id-card"></i> ECG Graph
+            </h3>
           </div>
-        </div>
+      
+          
+          <!-- Live Monitoring Cards -->
+          <div class="cards-row" id="monitoringCardsContainer" style="display: none;">
+            <!-- Monitor cards will be populated here -->
+          </div>
+          
+          <!-- ECG Graph -->
+          <div class="card ecg-card" id="ecgContainer" style="display: none;">
+            <h3 class="card-title">
+              <i class="fa-solid fa-wave-square"></i> ECG Signal Monitoring
+            </h3>
+            
+          </div>
+          <canvas id="patEcgChart"></canvas>
 
         <!-- Blood Pressure Entry Form -->
         <div class="card form-card" id="bpFormContainer" style="display: none;">
